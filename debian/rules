@@ -1,0 +1,107 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+release = $(shell dpkg-parsechangelog | grep -E ^Version: | sed "s/Version: 0.//")
+
+DEB_HOST_ARCH      ?= $(shell dpkg-architecture --query DEB_HOST_ARCH)
+
+include debian/java_defaults.mk
+
+p_jre		= openjdk-$(java_default_version)-jre
+p_jhl		= openjdk-$(java_default_version)-jre-headless
+p_jdk		= openjdk-$(java_default_version)-jdk
+p_jdkhl		= openjdk-$(java_default_version)-jdk-headless
+p_doc		= openjdk-$(java_default_version)-doc
+p_plugin	= icedtea-$(java_default_version)-plugin
+dversion	= 2:1.$(java_default_version)-$(release)
+$(warning XXXX $(java_default_version) / $(dversion))
+ifeq ($(java_default_version),11)
+  # we are really pointing to 10 for now
+  dversion	= 2:1.10-$(release)
+endif
+jvmdir		= java-1.$(java_default_version).0-openjdk-$(DEB_HOST_ARCH)
+
+ifeq (5, $(java_default_version))
+  p_jre		= gcj-jre
+  p_jhl		= gcj-jre-headless
+  p_jdk		= gcj-jdk
+  p_jdkhl	= gcj-jdk # no gcj-jdk-headless package
+  p_doc		= openjdk-8-doc
+  p_plugin	=
+  jvmdir	= java-gcj
+endif
+
+# Build default-java-plugin for the architectures supporting icedtea-web only
+ifeq (,$(filter $(_java_host_arch),$(java_plugin_architectures)))
+  p_plugin      =
+endif
+p_plugin      =
+
+nopkgs = -Ngcj-native-helper
+ifeq (5, $(java_default_version))
+	p_jre =
+	nopkgs += -N$(p_jre) -N$(p_jhl) -N$(p_jdk) -N$(p_jdkhl)
+endif
+
+jre_provides	= java-runtime, java2-runtime, $(shell seq --format java%.f-runtime --separator ', ' 5 $(java_default_version))
+jhl_provides	= java-runtime-headless, java2-runtime-headless, $(shell seq --format java%.f-runtime-headless --separator ', ' 5 $(java_default_version))
+jdk_provides	= java-sdk, java2-sdk, $(shell seq --format java%.f-sdk --separator ', ' 5 $(java_default_version))
+jdkhl_provides	= java-sdk-headless, java2-sdk-headless, $(shell seq --format java%.f-sdk-headless --separator ', ' 5 $(java_default_version))
+
+
+%:
+	dh $@
+
+override_dh_link:
+	dh_link
+
+	# Link /usr/lib/jvm/default-java to the default JRE
+	dh_link -pdefault-jre-headless usr/lib/jvm/$(jvmdir) usr/lib/jvm/default-java
+
+	# Link to the JDK documentation
+	dh_link -pdefault-jdk-doc /usr/share/doc/$(p_doc)/api usr/share/doc/default-jre-headless/api
+	dh_link -pdefault-jdk-doc /usr/share/doc/$(p_doc)/api usr/share/doc/default-jdk-doc/api
+
+override_dh_installdocs:
+	dh_installdocs -i
+
+	# Install the changelog and copyright once in default-jre-headless and use links for the other packages
+	dh_installdocs -pdefault-jre-headless
+	dh_link -pdefault-jre          /usr/share/doc/default-jre-headless /usr/share/doc/default-jre
+	dh_link -pdefault-jdk-headless /usr/share/doc/default-jre-headless /usr/share/doc/default-jdk-headless
+	dh_link -pdefault-jdk          /usr/share/doc/default-jre          /usr/share/doc/default-jdk
+#	dh_link -pdefault-java-plugin  /usr/share/doc/default-jre          /usr/share/doc/default-java-plugin
+
+	dh_installdocs -pdefault-jdk-doc
+	dh_installdocs -pgcj-native-helper
+
+override_dh_gencontrol:
+	dh_gencontrol -i
+ifneq (,$(p_jre))
+	dh_gencontrol -a --no-package=default-java-plugin $(nopkgs) -- \
+		-v$(dversion) \
+		'-Vjre=$(p_jre)' \
+		'-Vjhl=$(p_jhl)' \
+		'-Vjdk=$(p_jdk)' \
+		'-Vjdkhl=$(p_jdkhl)' \
+		'-Vdoc=$(p_doc)' \
+		'-Vjre:arch=$(DEB_HOST_ARCH)' \
+		'-Vjre:provides=$(jre_provides)' \
+		'-Vjhl:provides=$(jhl_provides)' \
+		'-Vjdkhl:provides=$(jdkhl_provides)' \
+		'-Vjdk:provides=$(jdk_provides)'
+endif
+ifneq (,$(p_plugin))
+	dh_gencontrol -pdefault-java-plugin -- -v$(dversion) -Vplugin=$(p_plugin) -Vjre:arch=$(DEB_HOST_ARCH)
+endif
+
+override_dh_builddeb:
+	dh_builddeb -i
+ifneq (,$(p_jre))
+	dh_builddeb -a --no-package=default-java-plugin $(nopkgs)
+endif
+ifneq (,$(p_plugin))
+	dh_builddeb -pdefault-java-plugin
+endif
