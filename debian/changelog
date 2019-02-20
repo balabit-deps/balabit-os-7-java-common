@@ -1,16 +1,68 @@
-java-common (0.63ubuntu1~02) bionic; urgency=medium
+java-common (0.68ubuntu1~18.04.1) bionic; urgency=medium
 
-  [ Tiago Stürmer Daitx ]
-  * Merge with Debian; remaining changes:
-    - debian/control:
-      - add XB-Cnf-Extra-Commands hints to default-{jre,jdk}
-        for the new command-not-found extraction
-      - default-jre: Lower recommends of default-java-plugin to a suggests.
+  * Backport from Cosmic.
+  * Default to openjdk-11. (LP: #1814133)
+
+ -- Tiago Stürmer Daitx <tiago.daitx@ubuntu.com>  Wed, 20 Feb 2019 16:31:12 +0000
+
+java-common (0.68ubuntu1) cosmic; urgency=medium
+
+  * Default to java11 architectures, again (10 still shipped in disguise
+    of 11).
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 20 Sep 2018 11:37:20 +0200
+
+java-common (0.68) unstable; urgency=medium
+
+  * Team upload.
+  * Moved powerpcspe to the list of Java 10 architectures (Closes: #901571)
+  * Moved m68k to the list of Java 10 architectures (Closes: #904585)
+  * Standards-Version updated to 4.1.5
+
+ -- Emmanuel Bourg <ebourg@apache.org>  Wed, 25 Jul 2018 23:47:52 +0200
+
+java-common (0.67) unstable; urgency=medium
+
+  * Team upload.
+  * Added riscv64 to the list of Java 10 architectures (Closes: #897039)
+  * default-jre no longer suggest default-java-plugin (Closes: #893849)
+
+ -- Emmanuel Bourg <ebourg@apache.org>  Wed, 06 Jun 2018 14:02:34 +0200
+
+java-common (0.66) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Emmanuel Bourg ]
+  * Use salsa.debian.org Vcs-* URLs
+  * Removed the GCJ paths from jvm_includes
+  * Simplified debian/rules
 
   [ Matthias Klose ]
-  * Keep the version of the defaults packages at 1:10.
+  * Remove all references to the plugin and gcj packages.
+  * Add the default values for Java 12
 
- -- Matthias Klose <doko@ubuntu.com>  Sun, 10 Apr 2018 11:43:54 +0200
+ -- Emmanuel Bourg <ebourg@apache.org>  Mon, 28 May 2018 15:59:28 +0200
+
+java-common (0.65) unstable; urgency=medium
+
+  * Bump sparc64 defaults to 1.10.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 30 Apr 2018 22:34:12 +0200
+
+java-common (0.63.1) experimental; urgency=medium
+
+  [ Tiago Stürmer Daitx ]
+  * debian/control:
+    - add XB-Cnf-Extra-Commands hints to default-{jre,jdk}
+      for the new command-not-found extraction
+  * default-jre: Lower recommends of default-java-plugin to a suggests.
+
+  [ Matthias Klose ]
+  * Bump the version of the defaults packages to 1.10, keep defaults
+    for m68k powerpcspe sparc64 at 1.9.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 08 Apr 2018 20:00:51 +0200
 
 java-common (0.63) unstable; urgency=medium
 
@@ -19,16 +71,6 @@ java-common (0.63) unstable; urgency=medium
   * Use debhelper 11
 
  -- tony mancill <tmancill@debian.org>  Tue, 03 Apr 2018 21:05:46 -0700
-
-java-common (0.62ubuntu1) bionic; urgency=medium
-
-  * Merge with Debian; no remaining changes.
-    - debian/control:
-      - add XB-Cnf-Extra-Commands hints to default-{jre,jdk}
-        for the new command-not-found extraction
-  * Still default to OpenJDK 8.
-
- -- Matthias Klose <doko@ubuntu.com>  Mon, 19 Mar 2018 14:55:27 +0800
 
 java-common (0.62) unstable; urgency=medium
 
@@ -49,21 +91,6 @@ java-common (0.61) unstable; urgency=medium
       -> default-jdk [!hppa !ia64 !s390 !sparc !hurd-i386]
 
  -- Matthias Klose <doko@debian.org>  Thu, 15 Mar 2018 19:59:44 +0100
-
-java-common (0.59ubuntu2) bionic; urgency=medium
-
-  * debian/control:
-    - add XB-Cnf-Extra-Commands hints to default-{jre,jdk}
-      for the new command-not-found extraction
-
- -- Michael Vogt <michael.vogt@ubuntu.com>  Wed, 28 Feb 2018 17:12:21 +0100
-
-java-common (0.59ubuntu1) artful; urgency=medium
-
-  * Merge with Debian; remaining changes:
-    - default-jre: Lower recommends of default-java-plugin to a suggests.
-
- -- Matthias Klose <doko@ubuntu.com>  Wed, 06 Sep 2017 12:26:58 +0200
 
 java-common (0.59) unstable; urgency=medium
 
@@ -87,13 +114,6 @@ java-common (0.58) unstable; urgency=medium
 
  -- Emmanuel Bourg <ebourg@apache.org>  Fri, 06 Jan 2017 13:55:31 +0100
 
-java-common (0.57ubuntu1) yakkety; urgency=medium
-
-  * Merge with Debian; remaining changes:
-    - default-jre: Lower recommends of default-java-plugin to a suggests.
-
- -- Matthias Klose <doko@ubuntu.com>  Wed, 25 May 2016 15:52:29 +0200
-
 java-common (0.57) unstable; urgency=medium
 
   * Build a default-jdk-headless package.
@@ -102,18 +122,6 @@ java-common (0.57) unstable; urgency=medium
   * Remove Torsten Werner from uploaders.
 
  -- Matthias Klose <doko@debian.org>  Fri, 26 Feb 2016 18:34:49 +0100
-
-java-common (0.56ubuntu2) xenial; urgency=medium
-
-  * Build a default-jdk-headless package.
-
- -- Matthias Klose <doko@ubuntu.com>  Thu, 25 Feb 2016 02:45:18 +0100
-
-java-common (0.56ubuntu1) xenial; urgency=medium
-
-  * default-jre: Lower recommends of default-java-plugin to a suggests.
-
- -- Matthias Klose <doko@ubuntu.com>  Thu, 18 Feb 2016 12:43:53 +0100
 
 java-common (0.56) unstable; urgency=medium
 
@@ -375,7 +383,7 @@ java-common (0.38) unstable; urgency=low
   * Updated the description of gcj-native-helper and also the
     previous changelog entry to clarify that gcj-native-helper
     is only a partial replacement for default-jdk-builddep.
-    
+
     Please see README.gcj-native-transition in the java-common
     package for more information on the transition.
   * Added missing Replaces/Conflicts for gcj-native-helper.
@@ -503,7 +511,7 @@ java-common (0.30ubuntu3) intrepid; urgency=low
 
   * On powerpc, default back to openjdk-6 instead of cacao-oj6. Still
     more testsuite failures in the OpenJDK testsuite with cacao compared
-    to the zero port. 
+    to the zero port.
 
  -- Matthias Klose <doko@ubuntu.com>  Mon, 13 Oct 2008 18:09:39 +0000
 
@@ -783,13 +791,13 @@ java-common (0.5) unstable; urgency=low
 
 java-common (0.4) unstable; urgency=low
 
-  * A few fixes (URLs mostly). 
+  * A few fixes (URLs mostly).
 
  -- Stephane Bortzmeyer <bortzmeyer@debian.org>  Mon,  2 Oct 2000 11:26:10 +0200
 
 java-common (0.3) unstable; urgency=low
 
-  * Added the Debian-Java FAQ (maintained by Fernandez-Sanguino Pen~a 
+  * Added the Debian-Java FAQ (maintained by Fernandez-Sanguino Pen~a
     <jfs@computer.org>) to the information provided by the package.
 
  -- Stephane Bortzmeyer <bortzmeyer@debian.org>  Wed, 12 Jul 2000 16:08:32 +0200
@@ -802,7 +810,7 @@ java-common (0.2) unstable; urgency=low
 
 java-common (0.1) unstable; urgency=low
 
-  * Proper versioning for a Debian-only package 
+  * Proper versioning for a Debian-only package
 
  -- Stephane Bortzmeyer <bortzmeyer@debian.org>  Mon, 28 Jun 1999 15:00:52 +0200
 

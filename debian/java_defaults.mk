@@ -1,13 +1,16 @@
 
 # makefile fragment to define the macros java_default_version,
-# java{,5,6,7,8,9,10,11}_architectures
+# java{,5,6,7,8,9,10,11,12}_architectures
 
-java11_architectures = amd64 arm64 armhf i386 ppc64el s390x
-java10_architectures = $(java11_architectures)
-java9_architectures = $(java10_architectures) \
-		alpha armel ia64 m68k mips mipsel \
-		mips64el powerpc powerpcspe ppc64 \
-		sh4 sparc64 x32
+java12_architectures =
+java11_architectures = $(java12_architectures) \
+		amd64 arm64 armhf i386 ppc64el s390x
+java10_architectures = $(java11_architectures) \
+		alpha armel \
+		ia64 m68k mips mipsel mips64el \
+		powerpc ppc64 powerpcspe \
+		riscv64 sparc64 sh4 x32
+java9_architectures = $(java10_architectures)
 java8_architectures = $(java9_architectures) \
 		kfreebsd-amd64 kfreebsd-i386
 java7_architectures = $(java8_architectures)
@@ -21,14 +24,10 @@ java_default_architectures = $(java8_architectures)
 
 java_dependency = $(strip $(1) [$(foreach a,$(filter-out $(java_default_architectures), $(java5_architectures)),!$(a))])
 
-java_plugin_architectures = \
-		amd64 arm64 armel armhf i386 \
-		powerpc ppc64 ppc64el s390x \
-		kfreebsd-amd64 kfreebsd-i386 \
-		x32
-
 _java_host_arch := $(if $(DEB_HOST_ARCH),$(DEB_HOST_ARCH),$(shell dpkg-architecture -qDEB_HOST_ARCH))
-ifneq (,$(filter $(_java_host_arch),$(java11_architectures)))
+ifneq (,$(filter $(_java_host_arch),$(java12_architectures)))
+  java_default_version = 12
+else ifneq (,$(filter $(_java_host_arch),$(java11_architectures)))
   java_default_version = 11
 else ifneq (,$(filter $(_java_host_arch),$(java10_architectures)))
   java_default_version = 10
@@ -52,27 +51,23 @@ _java_host_cpu := $(if $(DEB_HOST_ARCH_CPU),$(DEB_HOST_ARCH_CPU),$(shell dpkg-ar
 jvm_archdir_map = \
 	alpha=alpha armel=arm armhf=arm arm64=aarch64 amd64=amd64 hppa=parisc \
 	i386=i386 m68k=m68k mips=mips mipsel=mipsel mips64=mips64 mips64el=mips64el \
-	powerpc=ppc powerpcspe=ppc ppc64=ppc64 ppc64el=ppc64le \
+	powerpc=ppc powerpcspe=ppc ppc64=ppc64 ppc64el=ppc64le riscv64=riscv64 \
 	sparc=sparc sparc64=sparc64 sh4=sh s390x=s390x ia64=ia64 x32=x32
 
 jvm_archdir := \
 	$(strip $(patsubst $(_java_host_cpu)=%, %, $(filter $(_java_host_cpu)=%, $(jvm_archdir_map))))
 
-ifneq (,$(filter $(java_default_version), 9 10 11))
+ifneq (,$(filter $(java_default_version), 9 10 11 12))
   jvm_archpath := lib/$(jvm_archdir)
 else
   jvm_archpath := jre/lib/$(jvm_archdir)
 endif
 
 _jvm_osinclude = linux
-ifeq ($(java_default_version),5)
-  jvm_includes = \
-	-I/usr/lib/jvm/java-gcj/include -I/usr/lib/jvm/java-gcj/include/$(_jvm_osinclude)
-else
-  ifeq (,$(filter $(java_default_version), 6 7))
-    _jvm_osinclude = $(if $(findstring kfreebsd,$(_java_host_arch)),bsd,linux)
-  endif
-  jvm_includes = \
+ifeq (,$(filter $(java_default_version), 6 7))
+  _jvm_osinclude = $(if $(findstring kfreebsd,$(_java_host_arch)),bsd,linux)
+endif
+
+jvm_includes = \
 	-I/usr/lib/jvm/java-$(java_default_version)-openjdk-$(_java_host_arch)/include \
 	-I/usr/lib/jvm/java-$(java_default_version)-openjdk-$(_java_host_arch)/include/$(_jvm_osinclude)
-endif
